@@ -1,0 +1,81 @@
+using System;
+namespace PaymentAdapterExample
+{
+    public interface IPaymentProcessor
+    {
+        void ProcessPayment(double amount);
+    }
+
+    public class PayPalPaymentProcessor : IPaymentProcessor
+    {
+        public void ProcessPayment(double amount)
+        {
+            Console.WriteLine($"Обработка платежа на сумму {amount} через PayPal.");
+        }
+    }
+
+    public class StripePaymentService
+    {
+        public void MakeTransaction(double totalAmount)
+        {
+            Console.WriteLine($"Обработка платежа на сумму {totalAmount} через Stripe.");
+        }
+    }
+
+    public class StripePaymentAdapter : IPaymentProcessor
+    {
+        private readonly StripePaymentService _stripeService;
+
+        public StripePaymentAdapter(StripePaymentService stripeService)
+        {
+            _stripeService = stripeService;
+        }
+
+        public void ProcessPayment(double amount)
+        {
+            _stripeService.MakeTransaction(amount);
+        }
+    }
+
+    public class SquarePaymentService
+    {
+        public void ExecutePayment(double price)
+        {
+            Console.WriteLine($"Обработка платежа на сумму {price} через Square.");
+        }
+    }
+
+    public class SquarePaymentAdapter : IPaymentProcessor
+    {
+        private readonly SquarePaymentService _squareService;
+
+        public SquarePaymentAdapter(SquarePaymentService squareService)
+        {
+            _squareService = squareService;
+        }
+
+        public void ProcessPayment(double amount)
+        {
+            _squareService.ExecutePayment(amount);
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            IPaymentProcessor paypalProcessor = new PayPalPaymentProcessor();
+            paypalProcessor.ProcessPayment(1500);
+
+            StripePaymentService stripeService = new StripePaymentService();
+            IPaymentProcessor stripeProcessor = new StripePaymentAdapter(stripeService);
+            stripeProcessor.ProcessPayment(2700);
+
+            SquarePaymentService squareService = new SquarePaymentService();
+            IPaymentProcessor squareProcessor = new SquarePaymentAdapter(squareService);
+            squareProcessor.ProcessPayment(3250);
+
+            Console.ReadLine();
+        }
+    }
+}
